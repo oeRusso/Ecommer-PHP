@@ -155,24 +155,30 @@ class Pedidos
     public function save_Lineas_Pedidos()
     {
 
-        $sql = "SELECT LAST_INSERT_ID() as 'Pedido'";
-
+        $sql = "SELECT MAX(id) FROM pedidos";
+        
         $query = $this->db->query($sql);
+        
+        
+       $pedidos_id = $query->fetch_object(); //este dato no le esta llegando al insert, quizas sea pq esta fuera del scope o nose averiguar pq no llega
 
-        $pedido_id = $query->fetch_object();
-
-
-        foreach ($_SESSION['carrito'] as  $elemento) {
-            $producto = $elemento['producto'];
-
-            $producto = $producto->id;
-            $elemento = $elemento['unidades'];
-            $insert = "INSERT INTO lineas_pedidos VALUES(NULL,$pedido_id,$producto , $elemento)";
-            var_dump($insert);
-            die;
-
-            $save = $this->db->query($insert);
-        }
+       foreach ($pedidos_id as $pedidoid) {
+        
+            foreach ($_SESSION['carrito'] as  $elemento) { //recorre los elementos del carrito
+                
+                $producto = $elemento['producto']; 
+                $productoid = $producto->id;
+                
+                $unidades = $elemento['unidades'];
+            
+                $insert = "INSERT INTO lineas_pedidos VALUES(NULL, $pedidoid, $productoid, $unidades)"; //este insert al parecer esta mal, no pasa la info
+        
+                $save = $this->db->query($insert);
+            }
+       }
+        
+       header("Location:carrito/index.php");
+        
 
         $result = false;
 
